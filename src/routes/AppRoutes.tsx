@@ -6,11 +6,13 @@ import ClientsPage from "../features/clients/ClientsPage";
 import SalesPage from "../features/sales/SalesPage";
 import MainLayout from "../components/MainLayout";
 import PrivateRoute from "./PrivateRoute";
+import RegisterPage from "../features/register/RegisterPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* Rutas protegidas con layout */}
       <Route element={<PrivateRoute />}>

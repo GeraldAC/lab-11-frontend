@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 import { Box, Heading } from "@chakra-ui/react";
 import LoginForm from "./LoginForm";
 

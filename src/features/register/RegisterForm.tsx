@@ -8,19 +8,13 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { registerSchema, type RegisterData } from "../../types";
 
-const loginSchema = z.object({
-  username: z.string().min(1, "El usuario es obligatorio"),
-  password: z.string().min(1, "La contraseña es obligatoria"),
-});
-
-type LoginData = z.infer<typeof loginSchema>;
-
-const LoginForm = () => {
+const RegisterForm = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -29,28 +23,28 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterData>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: LoginData) => {
-    // Simular payload y token JWT
+  const onSubmit = (data: RegisterData) => {
+    // Simular payload y token
     const fakePayload = {
       username: data.username,
-      email: `${data.username}@example.com`,
+      email: data.email,
       role: "user",
     };
 
     const base64Payload = btoa(JSON.stringify(fakePayload));
     const fakeToken = `header.${base64Payload}.signature`;
 
-    // Login con token simulado
     login(fakeToken);
 
     toast({
-      title: "Inicio de sesión exitoso",
+      title: "Registro exitoso",
+      description: "Has iniciado sesión automáticamente",
       status: "success",
-      duration: 2000,
+      duration: 2500,
       isClosable: true,
     });
 
@@ -64,17 +58,27 @@ const LoginForm = () => {
           <FormLabel>Usuario</FormLabel>
           <Input
             type="text"
-            placeholder="Ingrese su usuario"
+            placeholder="Nombre de usuario"
             {...register("username")}
           />
           <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
+        </FormControl>
+
+        <FormControl isInvalid={!!errors.email}>
+          <FormLabel>Email</FormLabel>
+          <Input
+            type="email"
+            placeholder="Correo electrónico"
+            {...register("email")}
+          />
+          <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={!!errors.password}>
           <FormLabel>Contraseña</FormLabel>
           <Input
             type="password"
-            placeholder="Ingrese su contraseña"
+            placeholder="Contraseña"
             {...register("password")}
           />
           <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
@@ -86,11 +90,11 @@ const LoginForm = () => {
           width="full"
           isLoading={isSubmitting}
         >
-          Iniciar Sesión
+          Registrarse
         </Button>
       </VStack>
     </form>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;
