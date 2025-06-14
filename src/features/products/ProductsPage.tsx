@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Heading,
+  Button,
   useDisclosure,
   useToast,
   Modal,
@@ -10,21 +11,33 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import ProductForm from "./ProductForm";
 import ProductTable from "./ProductTable";
-import { v4 as uuidv4 } from "uuid";
 import type { ProductData, ProductFormData } from "../../types";
+import { fetchFakeProducts } from "../../services/fakeData";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [editingProduct, setEditingProduct] = useState<ProductData | null>(
     null
   );
+  const [loading, setLoading] = useState(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      const data = await fetchFakeProducts();
+      setProducts(data);
+      setLoading(false);
+    };
+    loadProducts();
+  }, []);
 
   const handleAddClick = () => {
     setEditingProduct(null);
@@ -58,6 +71,14 @@ const ProductsPage = () => {
       isClosable: true,
     });
   };
+
+  if (loading) {
+    return (
+      <Center h="100%">
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
 
   return (
     <Box p={6}>

@@ -1,28 +1,42 @@
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
   Heading,
-  useDisclosure,
-  useToast,
   Modal,
-  ModalOverlay,
+  ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  ModalOverlay,
+  Spinner,
+  useDisclosure,
+  useToast,
+  Center,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import ClientForm from "./ClientForm";
 import ClientTable from "./ClientTable";
-import { v4 as uuidv4 } from "uuid";
 import type { ClientData, ClientFormData } from "../../types";
+import { fetchFakeClients } from "../../services/fakeData";
 
 const ClientsPage = () => {
   const [clients, setClients] = useState<ClientData[]>([]);
   const [editingClient, setEditingClient] = useState<ClientData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+
+  useEffect(() => {
+    const loadClients = async () => {
+      const data = await fetchFakeClients();
+      setClients(data);
+      setLoading(false);
+    };
+
+    loadClients();
+  }, []);
 
   const handleAddClick = () => {
     setEditingClient(null);
@@ -59,10 +73,18 @@ const ClientsPage = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <Center h="100%">
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
+
   return (
     <Box p={6}>
       <Heading mb={4}>Gestión de Clientes</Heading>
-      <Button colorScheme="teal" onClick={handleAddClick}>
+      <Button colorScheme="teal" onClick={handleAddClick} mb={4}>
         Registrar Cliente
       </Button>
 
