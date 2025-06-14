@@ -1,13 +1,15 @@
-import { Box, Button, Heading } from "@chakra-ui/react";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/AppRoutes";
+import { AuthProvider } from "./hooks/AuthContext";
 
 function App() {
   return (
-    <Box p={6}>
-      <Heading mb={4}>Hola desde Chakra UI v2</Heading>
-      <Button colorScheme="teal">Botón Chakra</Button>
-    </Box>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
 export default App;
-
