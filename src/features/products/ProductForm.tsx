@@ -36,8 +36,6 @@ const ProductForm = ({
     defaultValues,
   });
 
-  console.log({ defValues: defaultValues });
-
   const onSubmit = (data: ProductFormData) => {
     onSubmitProduct(data);
     toast({

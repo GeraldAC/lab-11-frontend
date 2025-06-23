@@ -33,8 +33,6 @@ const ClientForm = ({
     defaultValues,
   });
 
-  console.log({ defValues: defaultValues });
-
   const onSubmit = (data: ClientFormData) => {
     onSubmitClient(data);
     toast({
