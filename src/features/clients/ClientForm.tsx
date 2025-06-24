@@ -5,7 +5,6 @@ import {
   FormErrorMessage,
   Button,
   VStack,
-  useToast,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,8 +21,6 @@ const ClientForm = ({
   defaultValues = {},
   isEditing = false,
 }: Props) => {
-  const toast = useToast();
-
   const {
     register,
     handleSubmit,
@@ -35,12 +32,6 @@ const ClientForm = ({
 
   const onSubmit = (data: ClientFormData) => {
     onSubmitClient(data);
-    toast({
-      title: isEditing ? "Cliente actualizado" : "Cliente registrado",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
   };
 
   return (

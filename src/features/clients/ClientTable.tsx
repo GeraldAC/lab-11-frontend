@@ -15,7 +15,7 @@ import type { ClientData } from "../../types";
 type Props = {
   clients: ClientData[];
   onEdit: (client: ClientData) => void;
-  onDelete: (clientId: string) => void;
+  onDelete: (clientId: number) => void;
 };
 
 const ClientTable = ({ clients, onEdit, onDelete }: Props) => {

@@ -5,7 +5,6 @@ import {
   FormErrorMessage,
   Button,
   VStack,
-  useToast,
   NumberInput,
   NumberInputField,
 } from "@chakra-ui/react";
@@ -24,8 +23,6 @@ const ProductForm = ({
   defaultValues = {},
   isEditing = false,
 }: Props) => {
-  const toast = useToast();
-
   const {
     register,
     handleSubmit,
@@ -38,12 +35,6 @@ const ProductForm = ({
 
   const onSubmit = (data: ProductFormData) => {
     onSubmitProduct(data);
-    toast({
-      title: isEditing ? "Producto actualizado" : "Producto registrado",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
   };
 
   return (

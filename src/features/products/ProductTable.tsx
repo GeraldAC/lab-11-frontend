@@ -15,7 +15,7 @@ import type { ProductData } from "../../types";
 type Props = {
   products: ProductData[];
   onEdit: (product: ProductData) => void;
-  onDelete: (productId: string) => void;
+  onDelete: (productId: number) => void;
 };
 
 const ProductTable = ({ products, onEdit, onDelete }: Props) => {
@@ -42,7 +42,7 @@ const ProductTable = ({ products, onEdit, onDelete }: Props) => {
           {products.map((product) => (
             <Tr key={product.id}>
               <Td>{product.name}</Td>
-              <Td>S/ {product.price.toFixed(2)}</Td>
+              <Td>S/ {product.price}</Td>
               <Td>{product.stock}</Td>
               <Td isNumeric>
                 <IconButton

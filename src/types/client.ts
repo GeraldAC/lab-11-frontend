@@ -1,21 +1,19 @@
 import { z } from "zod";
 
-// Esquema base (formulario)
+// Formulario
 export const clientSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   email: z.string().email("Email inválido"),
   phone: z.string().min(7, "Teléfono inválido"),
 });
 
-// Tipos base
 export type ClientFormData = z.infer<typeof clientSchema>;
-export type ClientData = ClientFormData & { id: string };
 
-// Cliente completo (por ejemplo, desde la API o DB)
-export const clientFullSchema = clientSchema.extend({
-  id: z.string(),
+// Cliente desde la API
+export const clientDataSchema = clientSchema.extend({
+  id: z.number(),
 });
-export type ClientFullData = z.infer<typeof clientFullSchema>;
+export type ClientData = z.infer<typeof clientDataSchema>;
 
 // Para actualizar cliente (PUT/PATCH)
 export const clientUpdateSchema = z.object({
@@ -24,13 +22,6 @@ export const clientUpdateSchema = z.object({
   phone: z.string().min(7).optional(),
 });
 export type ClientUpdateData = z.infer<typeof clientUpdateSchema>;
-
-// Para filtros/búsqueda
-export const clientFilterSchema = z.object({
-  search: z.string().optional(),
-  email: z.string().email().optional(),
-});
-export type ClientFilter = z.infer<typeof clientFilterSchema>;
 
 // Para eliminar cliente
 export const clientDeleteSchema = z.object({

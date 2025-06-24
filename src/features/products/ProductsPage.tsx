@@ -14,11 +14,15 @@ import {
   Spinner,
   Center,
 } from "@chakra-ui/react";
-import { v4 as uuidv4 } from "uuid";
 import ProductForm from "./ProductForm";
 import ProductTable from "./ProductTable";
 import type { ProductData, ProductFormData } from "../../types";
-import { fetchFakeProducts } from "../../services/fakeData";
+import {
+  createProducto,
+  deleteProducto,
+  getProductos,
+  updateProducto,
+} from "../../services/product.service";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<ProductData[]>([]);
@@ -32,29 +36,67 @@ const ProductsPage = () => {
 
   useEffect(() => {
     const loadProducts = async () => {
-      const data = await fetchFakeProducts();
-      setProducts(data);
-      setLoading(false);
+      try {
+        const { data } = await getProductos();
+        setProducts(data);
+      } catch (error) {
+        console.log({ error });
+        toast({
+          title: "Error al cargar productos",
+          description: "No se pudieron obtener los datos",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false);
+      }
     };
+
     loadProducts();
-  }, []);
+  }, [toast]);
 
   const handleAddClick = () => {
     setEditingProduct(null);
     onOpen();
   };
 
-  const handleSaveProduct = (formData: ProductFormData) => {
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingProduct.id ? { ...formData, id: p.id } : p
-        )
-      );
-    } else {
-      setProducts((prev) => [...prev, { ...formData, id: uuidv4() }]);
+  const handleSaveProduct = async (formData: ProductFormData) => {
+    try {
+      if (editingProduct) {
+        const { data: res } = await updateProducto(editingProduct.id, formData);
+        toast({
+          title: "Producto actualizado",
+          description: res.message,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === editingProduct.id ? { ...formData, id: p.id } : p
+          )
+        );
+      } else {
+        const { data: newProduct } = await createProducto(formData);
+        setProducts((prev) => [...prev, newProduct]);
+        toast({
+          title: "Producto registrado",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
+      onClose();
+    } catch (error) {
+      console.log({ error });
+      toast({
+        title: "Error al guardar producto",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
-    onClose();
   };
 
   const handleEdit = (product: ProductData) => {
@@ -62,14 +104,26 @@ const ProductsPage = () => {
     onOpen();
   };
 
-  const handleDelete = (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    toast({
-      title: "Producto eliminado",
-      status: "info",
-      duration: 2000,
-      isClosable: true,
-    });
+  const handleDelete = async (id: number) => {
+    try {
+      const { data: res } = await deleteProducto(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast({
+        title: "Producto eliminado",
+        description: res.message,
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.log({ error });
+      toast({
+        title: "Error al eliminar producto",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   if (loading) {

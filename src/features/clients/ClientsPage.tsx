@@ -14,11 +14,15 @@ import {
   useToast,
   Center,
 } from "@chakra-ui/react";
-import { v4 as uuidv4 } from "uuid";
 import ClientForm from "./ClientForm";
 import ClientTable from "./ClientTable";
 import type { ClientData, ClientFormData } from "../../types";
-import { fetchFakeClients } from "../../services/fakeData";
+import {
+  createCliente,
+  deleteCliente,
+  getClientes,
+  updateCliente,
+} from "../../services/client.service";
 
 const ClientsPage = () => {
   const [clients, setClients] = useState<ClientData[]>([]);
@@ -30,32 +34,69 @@ const ClientsPage = () => {
 
   useEffect(() => {
     const loadClients = async () => {
-      const data = await fetchFakeClients();
-      setClients(data);
-      setLoading(false);
+      try {
+        const { data } = await getClientes();
+        setClients(data);
+      } catch (error) {
+        console.log({ error });
+        toast({
+          title: "Error al cargar clientes",
+          description: "No se pudieron obtener los datos",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadClients();
-  }, []);
+  }, [toast]);
 
   const handleAddClick = () => {
     setEditingClient(null);
     onOpen();
   };
 
-  const handleSaveClient = (formData: ClientFormData) => {
-    if (editingClient) {
-      // Edición
-      setClients((prev) =>
-        prev.map((c) =>
-          c.id === editingClient.id ? { ...formData, id: c.id } : c
-        )
-      );
-    } else {
-      // Nuevo cliente
-      setClients((prev) => [...prev, { ...formData, id: uuidv4() }]);
+  const handleSaveClient = async (formData: ClientFormData) => {
+    try {
+      if (editingClient) {
+        // Editar cliente
+        const { data: res } = await updateCliente(editingClient.id, formData);
+        toast({
+          title: "Cliente actualizado",
+          description: res.message,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+        setClients((prev) =>
+          prev.map((c) =>
+            c.id === editingClient.id ? { ...formData, id: c.id } : c
+          )
+        );
+      } else {
+        // Crear cliente
+        const { data: newClient } = await createCliente(formData);
+        setClients((prev) => [...prev, newClient]);
+        toast({
+          title: "Cliente registrado",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
+      onClose();
+    } catch (error) {
+      console.log({ error });
+      toast({
+        title: "Error al guardar cliente",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
-    onClose();
   };
 
   const handleEdit = (client: ClientData) => {
@@ -63,14 +104,26 @@ const ClientsPage = () => {
     onOpen();
   };
 
-  const handleDelete = (id: string) => {
-    setClients((prev) => prev.filter((c) => c.id !== id));
-    toast({
-      title: "Cliente eliminado",
-      status: "info",
-      duration: 2000,
-      isClosable: true,
-    });
+  const handleDelete = async (id: number) => {
+    try {
+      const { data: res } = await deleteCliente(id);
+      setClients((prev) => prev.filter((c) => c.id !== id));
+      toast({
+        title: "Cliente eliminado",
+        description: res.message,
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.log({ error });
+      toast({
+        title: "Error al eliminar cliente",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   if (loading) {
@@ -91,7 +144,7 @@ const ClientsPage = () => {
       <ClientTable
         clients={clients}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={(id) => handleDelete(id)}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
